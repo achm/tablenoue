@@ -19,6 +19,8 @@
   "devDependencies": {
     "@types/node": "^9.4.6",
     "node-sass": "^4.9.0",
+    "pug": "^2.0.3",
+    "pug-loader": "^2.4.0",
     "sass-loader": "^7.0.3",
     "ts-loader": "^3.5.0",
     "typescript": "^2.7.2"
