@@ -54,7 +54,10 @@ module.exports = {
   /*
   ** Build configuration
   */
-  css: ["~/assets/css/main.css"],
+  css: [
+    "~/assets/css/main.css",
+    { src: "bulma/bulma.sass", lang: "sass" }
+  ],
   build: {},
   modules: [
     "@nuxtjs/axios",
