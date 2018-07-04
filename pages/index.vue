@@ -2,15 +2,7 @@
 section
   section.hero.is-primary.is-medium
     .hero-head
-      nav.navbar
-        .container
-          .navbar-brand
-            a.navbar-item(href="/") tablenoue
-          .navbar-menu
-            .navbar-end
-              a.navbar-item.is-active Home
-              a.navbar-item Games
-              a.navbar-item Plays
+      Navbar
 
     .hero-body
       .container.has-text-centered
@@ -20,21 +12,19 @@ section
 
 <script lang="ts">
 import {
-  Component,
-  Vue
+  Vue,
+  Component
 } from "nuxt-property-decorator"
-import { State } from "vuex-class"
-import Card from "~/components/Card.vue"
+import Navbar from "~/components/Navbar.vue"
 
 @Component({
   components: {
-    Card
+    Navbar
   }
 })
 export default class extends Vue {
-  @State people
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 </style>

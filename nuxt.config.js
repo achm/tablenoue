@@ -1,3 +1,4 @@
+const webpack = require('webpack')
 const parseArgs = require("minimist")
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -23,6 +24,9 @@ module.exports = {
     baseUrl:
       process.env.BASE_URL ||
       `http://${host}:${port}`
+  },
+  router: {
+    middleware: "authenticated"
   },
   head: {
     title: "tablenoue",
@@ -58,7 +62,20 @@ module.exports = {
     "~/assets/css/main.css",
     { src: "bulma/bulma.sass", lang: "sass" }
   ],
-  build: {},
+  build: {
+    extend (config, { isDev, isClient }) {
+      config.plugins.push(
+        new webpack.EnvironmentPlugin([
+          'API_KEY',
+          'AUTH_DOMAIN',
+          'DATABASE_URL',
+          'PROJECT_ID',
+          'STORAGE_BUCKET',
+          'MESSAGING_SENDER_ID'
+        ])
+      )
+    }
+  },
   modules: [
     "@nuxtjs/axios",
     "~/modules/typescript.js"
