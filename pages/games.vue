@@ -1,8 +1,9 @@
 <template lang="pug">
 section
-  section.is-primary.is-medium
+  section.hero.is-primary.is-medium
     Navbar
 
+  section.section
     .container
       h1.title Games
       .box(v-for="game in games")

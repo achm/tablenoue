@@ -1,15 +1,12 @@
 <template lang="pug">
 section
   section.hero.is-primary.is-medium
-    .hero-head
-      Navbar
+    Navbar
 
-    .hero-body
-      .container
-        h1.title tablenoue
-        h2.subtitle わいわい たのしもう ボードゲーム
-        .button.is-info(@click="notify") Notify
-        .tag {{ currentToken }}
+  section.section
+    .container
+      h1.title Circles
+      
 </template>
 
 <script lang="ts">

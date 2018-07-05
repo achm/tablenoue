@@ -3,11 +3,15 @@ nav.navbar
   .container
     .navbar-brand
       nuxt-link.navbar-item(to="/") tablenoue
-    .navbar-menu
-      .navbar-end
-        nuxt-link.navbar-item(active-class="is-active" to="/" exact) Home
+      a.navbar-burger(@click="toggleBurger" :class="{ 'is-active': isOpenBurger }")
+        span
+        span
+        span
+    .navbar-menu(:class="{ 'is-active': isOpenBurger }")
+      .navbar-start
         nuxt-link.navbar-item(active-class="is-active" to="/games") Games
-        nuxt-link.navbar-item(active-class="is-active" to="/plays") Plays
+        nuxt-link.navbar-item(active-class="is-active" to="/circles") Circles
+      .navbar-end
         .navbar-item
           .dropdown.is-right(v-if="isAuthenticated" :class="{ 'is-active': isOpen }")
             .dropdown-trigger(@click="toggleSettings")
@@ -43,6 +47,7 @@ export default class extends Vue {
   @auth.Action setUser
 
   isOpen = false;
+  isOpenBurger = false;
 
   async mounted() {
     let user = await Auth()
@@ -64,6 +69,10 @@ export default class extends Vue {
 
   toggleSettings() {
     this.isOpen = !this.isOpen;
+  }
+
+  toggleBurger() {
+    this.isOpenBurger = !this.isOpenBurger;
   }
 }
 </script>
