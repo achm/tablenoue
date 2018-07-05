@@ -84,5 +84,8 @@ module.exports = {
     ["@nuxtjs/pwa", { icon: false }],
     "~/modules/typescript.js"
   ],
+  manifest: {
+    "gcm_sender_id": "103953800507",
+  },
   axios: {}
 }
