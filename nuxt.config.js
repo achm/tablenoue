@@ -81,6 +81,7 @@ module.exports = {
   },
   modules: [
     "@nuxtjs/axios",
+    ["@nuxtjs/pwa", { icon: false }],
     "~/modules/typescript.js"
   ],
   axios: {}
