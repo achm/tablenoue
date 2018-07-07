@@ -1,8 +1,4 @@
-import firebase from '~/plugins/firebase'
-const db = firebase.firestore();
-db.settings({
-  timestampsInSnapshots: true,
-})
+import db from '~/plugins/firestore'
 
 export const strict = false;
 

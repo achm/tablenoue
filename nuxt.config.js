@@ -52,7 +52,8 @@ module.exports = {
     ]
   },
   plugins: [
-    "~/plugins/fontawesome.js"
+    "~/plugins/fontawesome.js",
+    "~/plugins/messaging.js",
   ],
   /*
   ** Customize the progress-bar color

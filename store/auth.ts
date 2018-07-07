@@ -1,4 +1,4 @@
-import firebase from '@/plugins/firebase'
+import firebase from '~/plugins/firebase'
 import { debug } from 'util';
 
 const googleProvider = new firebase.auth.GoogleAuthProvider()

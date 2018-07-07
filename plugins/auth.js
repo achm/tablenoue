@@ -1,4 +1,4 @@
-import firebase from "@/plugins/firebase"
+import firebase from "~/plugins/firebase"
 
 export default () => {
   return new Promise((resolve, reject) => {
