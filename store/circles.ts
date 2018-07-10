@@ -1,28 +1,55 @@
-import axios from 'axios'
 import db from '~/plugins/firestore'
+import functions from '~/plugins/functions'
 
 export const strict = false;
 
-export const state = () => ({
+interface Circle {
+  id: string,
+  name: string,
+  subscribersCount?: number,
+}
+
+interface state {
+  circles: Circle[],
+  currentCircle: Circle | null,
+  subscribingCircleIds: string[],
+}
+
+export const state = (): state => ({
   circles: [],
   currentCircle: null,
+  subscribingCircleIds: [],
 })
 
 export const getters = {
+  isSubscribingCircle: (state: state) => (circleId: string): boolean => {
+    return state.subscribingCircleIds.indexOf(circleId) >= 0
+  },
 }
 
 export const mutations = {
-  addCircles(state, circles) {
+  addCircles(state: state, circles: Circle) {
     state.circles = state.circles.concat(circles)
   },
-  setCircle(state, circle) {
+  setCircle(state: state, circle: Circle) {
     state.currentCircle = circle
+  },
+  setSubscribingCircleIds(state: state, circleIds: string[]) {
+    state.subscribingCircleIds = circleIds
+  },
+  subscribeCircle(state: state, circleId: string) {
+    if (state.subscribingCircleIds.indexOf(circleId) == -1) {
+      state.subscribingCircleIds.push(circleId)
+    }
+  },
+  unsubscribeCircle(state: state, circleId: string) {
+    if (state.subscribingCircleIds.indexOf(circleId) > -1) {
+      delete state.subscribingCircleIds[circleId]
+    }
   }
 }
 
 export const actions = {
-  async nuxtServerInit({ commit }, { app }) {
-  },
   async fetchCircles({ commit, state }) {
     const lastCircle = state.circles[state.circles.length - 1]
     const lastCircleName = lastCircle && lastCircle.name
@@ -39,7 +66,15 @@ export const actions = {
         commit("addCircles", circles)
       })
   },
-  fetchCircle({ commit }, circleId) {
+  fetchSubscribingCircles({ commit, rootState }) {
+    if (!rootState.auth.user) { return }
+    db.collection('circleSubscribers').where('userId', '==', rootState.auth.user.uid).get()
+      .then(snapshot => {
+        const ids = snapshot.docs.map(doc => doc.data().circleId)
+        commit('setSubscribingCircleIds', ids)
+      })
+  },
+  fetchCircle({ commit }, circleId: string) {
     return db.collection("circles").doc(circleId).get()
       .then((snapshot) => {
         commit("setCircle", {
@@ -48,17 +83,23 @@ export const actions = {
         })
       })
   },
-  existCircleId({}, circleId) {
+  existCircleId({}, circleId: string) {
     return db.collection("circles").doc(circleId).get()
       .then(snapshot => snapshot.exists)
   },
-  subscribeCircle({}, { circleId, token }) {
-    const option = {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'key=AAAAaD42Hik:APA91bG8wCgDl08aurAovU3EI0lORMVYVP7_kg1JD5YWM3SV0_c3bt7K_BlNRz_7L1LovIuExyqZn_wYUiTvwGh-mPytVpktiE2X6ZxFJUiVSgbcNlH0q0X2JE3RiWNUwdEMxsJtXfPwpqnmJvM0OVMFMqT-KAw3Zw'
-      }
-    }
-    return axios.post(`https://iid.googleapis.com/iid/v1/${token}/rel/topics/circles-${circleId}`, {}, option)
-  }
+  subscribeCircle({ commit }, { circleId, token }: { circleId: string, token: string }) {
+    return functions.httpsCallable('subscribeCircle')({ circleId: circleId, token: token })
+      .then(() => {
+        commit('subscribeCircle', circleId)
+      })
+  },
+  unsubscribeCircle({ commit }, { circleId, token }: { circleId: string, token: string }) {
+    return functions.httpsCallable('unsubscribeCircle')({ circleId: circleId, token: token })
+      .then(() => {
+        commit('unsubscribeCircle', circleId)
+      })
+  },
+  notifyToCircle({}, { circleId }: { circleId: string }) {
+    return functions.httpsCallable('notifyToCircle')({ circleId: circleId })
+  },
 }

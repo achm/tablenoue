@@ -16,7 +16,13 @@ export const mutations = {
 }
 
 export const actions = {
-  async nuxtServerInit({ commit }, { app }) {
+  async nuxtServerInit({ commit }, { req }) {
+    if (req.user) {
+      commit('auth/setUser', req.user)
+    }
+  },
+  async nuxtClientInit({ dispatch }) {
+    dispatch('auth/nuxtClientInit')
   },
   async fetchGames() {
     const lastGame = this.state.games[this.state.games.length - 1]

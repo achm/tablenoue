@@ -1,4 +1,5 @@
 import firebase from '~/plugins/firebase'
+import auth from '~/plugins/auth'
 import { debug } from 'util';
 
 const googleProvider = new firebase.auth.GoogleAuthProvider()
@@ -20,7 +21,11 @@ export const mutations = {
 }
 
 export const actions = {
-  async nuxtServerInit({ commit }, { app }) {
+  async nuxtClientInit({ commit }) {
+    const user = await auth()
+    if (user) {
+      commit('setUser', user)
+    }
   },
   login() {
     return new Promise((resolve, reject) => {

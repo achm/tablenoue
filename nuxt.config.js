@@ -25,6 +25,9 @@ module.exports = {
       process.env.BASE_URL ||
       `http://${host}:${port}`
   },
+  ignore: [
+    '~/functions/**/*'
+  ],
   router: {
     middleware: "authenticated"
   },
@@ -52,8 +55,13 @@ module.exports = {
     ]
   },
   plugins: [
+    { src: '~/plugins/nuxt-client-init.js', ssr: false },
+    { src: '~/plugins/auth-cookie.js', ssr: false },
     "~/plugins/fontawesome.js",
     "~/plugins/messaging.js",
+  ],
+  serverMiddleware: [
+    '~/serverMiddleware/token-verifier.js'
   ],
   /*
   ** Customize the progress-bar color
@@ -75,7 +83,9 @@ module.exports = {
           'DATABASE_URL',
           'PROJECT_ID',
           'STORAGE_BUCKET',
-          'MESSAGING_SENDER_ID'
+          'MESSAGING_SENDER_ID',
+          'SERVICE_ACCOUNT',
+          'PRIVATE_KEY'
         ])
       )
     }
