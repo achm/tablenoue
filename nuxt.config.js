@@ -25,6 +25,9 @@ module.exports = {
       process.env.BASE_URL ||
       `http://${host}:${port}`
   },
+  ignore: [
+    '~/functions/**/*'
+  ],
   router: {
     middleware: "authenticated"
   },
