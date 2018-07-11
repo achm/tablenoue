@@ -49,21 +49,8 @@ export default class extends Vue {
   isOpen = false;
   isOpenBurger = false;
 
-  async mounted() {
-    let user = await Auth()
-
-    if (user) {
-      this.setUser(user)
-      user.getIdToken().then(idToken => {
-        localStorage.setItem("AUTH_TOKEN", idToken)
-        //this['$router'].push('/')
-      })
-    }
-  }
-
   doLogout() {
     this.actionLogout()
-      .then(() => console.log("resolved"))
       .catch((err) => alert(err));
   }
 
