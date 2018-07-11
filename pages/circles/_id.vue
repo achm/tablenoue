@@ -9,7 +9,12 @@ section
         .level-left
           .level-item
             h1.title {{ currentCircle.name }}
-          .level-item
+          .level-item(v-if="isSubscribingCircle(currentCircle.id)")
+            button.button.is-default.is-small(@click="unsubscribe" :class="{ 'is-loading': isLoadingSubscribe }")
+              span.icon
+                font-awesome-icon(icon="bell")
+              span Unsubscribe
+          .level-item(v-else)
             button.button.is-link.is-small(@click="subscribe")
               span.icon
                 font-awesome-icon(icon="bell")
@@ -31,8 +36,8 @@ import {
 } from "vuex-class"
 import axios from 'axios'
 import firebase from "~/plugins/firebase"
+import auth from "~/plugins/auth"
 import Navbar from "~/components/Navbar.vue"
-import { setTimeout } from "timers";
 const circles = namespace("circles")
 
 @Component({
@@ -42,11 +47,17 @@ const circles = namespace("circles")
 })
 export default class extends Vue {
   @circles.State currentCircle
+  @circles.Getter isSubscribingCircle
   @circles.Action subscribeCircle
+  @circles.Action unsubscribeCircle
+  @circles.Action notifyToCircle
+
+  isLoadingSubscribe = true
 
   async fetch({ params, store, error }) {
     const exist = await store.dispatch("circles/existCircleId", params.id)
     if (exist) {
+      store.dispatch("circles/fetchSubscribingCircles")
       return store.dispatch("circles/fetchCircle", params.id)
     } else {
       return error({ statusCode: 404, message: 'This page could not be found' })
@@ -54,39 +65,36 @@ export default class extends Vue {
   }
 
   mounted() {
+    this.isLoadingSubscribe = false
   }
 
   subscribe() {
+    this.isLoadingSubscribe = true
     const messaging = firebase.messaging()
     messaging.requestPermission()
     messaging.getToken()
       .then((currentToken) => {
         if (currentToken) {
           this.subscribeCircle({ circleId: this.currentCircle.id, token: currentToken })
+            .then(() => { this.isLoadingSubscribe = false })
         }
-      }).catch((err) => {
-        alert(err)
+      })
+  }
+
+  unsubscribe() {
+    this.isLoadingSubscribe = true
+    const messaging = firebase.messaging()
+    messaging.getToken()
+      .then((currentToken) => {
+        if (currentToken) {
+          this.unsubscribeCircle({ circleId: this.currentCircle.id, token: currentToken })
+            .then(() => { this.isLoadingSubscribe = false })
+        }
       })
   }
 
   notify() {
-    let argObj = { // 受信者のトークンIDと通知内容
-      to: `/topics/circles-${this.currentCircle.id}`,
-      notification: {
-        title: 'tablenoue',
-        body: 'メッセージ内容',
-        click_action: 'https://www.tablenoue.app/circles',
-      }
-    }
-    let optionObj = { //送信者のサーバーキー
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'key=AAAAaD42Hik:APA91bG8wCgDl08aurAovU3EI0lORMVYVP7_kg1JD5YWM3SV0_c3bt7K_BlNRz_7L1LovIuExyqZn_wYUiTvwGh-mPytVpktiE2X6ZxFJUiVSgbcNlH0q0X2JE3RiWNUwdEMxsJtXfPwpqnmJvM0OVMFMqT-KAw3Zw'
-      }
-    }
-    setTimeout(() => {
-      axios.post('https://fcm.googleapis.com/fcm/send', argObj, optionObj)
-    }, 5000)
+    this.notifyToCircle({ circleId: this.currentCircle.id })
   }
 }
 </script>
