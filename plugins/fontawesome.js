@@ -4,6 +4,7 @@ import {
   faBell,
   faBellSlash,
   faClock,
+  faExclamationTriangle,
   faUsers,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -12,6 +13,7 @@ library.add(
   faBell,
   faBellSlash,
   faClock,
+  faExclamationTriangle,
   faUsers,
 )
 

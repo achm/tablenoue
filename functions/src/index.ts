@@ -54,7 +54,7 @@ exports.unsubscribeCircle = functions.https.onCall(async ({ circleId, token }, c
     return { result: true }
 })
 
-exports.notifyToCircle = functions.https.onCall(async ({ circleId }, context) => {
+exports.notifyToCircle = functions.https.onCall(async ({ circleId, datetime }, context) => {
     const circleSnapshot = await db.collection('circles').doc(circleId).get()
 
     if (context.auth && circleSnapshot.exists) {
@@ -63,6 +63,12 @@ exports.notifyToCircle = functions.https.onCall(async ({ circleId }, context) =>
         const user = userSnapshot.data()
         const circleSubscriberSnapshot = await db.collection('circleSubscribers').doc(`${circleId}_${context.auth.uid}`).get()
         if (circleSubscriberSnapshot.exists && circle && user) {
+            const date = new Date(datetime)
+            await circleSnapshot.ref.collection('kiuns').doc(`${user.uid}_${date.getTime()}`).set({
+                user,
+                datetime: date,
+                createdAt: new Date()
+            })
             const message: admin.messaging.Message = {
                 topic: `circles-${circleId}`,
                 data: {
@@ -70,6 +76,8 @@ exports.notifyToCircle = functions.https.onCall(async ({ circleId }, context) =>
                     circleName: circle.name,
                     userId: context.auth.uid,
                     userName: user.displayName,
+                    datetime: datetime,
+                    type: 'KIUN_TO_CIRCLE'
                 },
                 notification: {
                     title: `「${circle.name}」でボドゲの機運！`,

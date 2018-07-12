@@ -57,7 +57,7 @@ export const actions = {
     return db.collection("circles").orderBy("name").startAfter(lastCircleName || "").limit(50).get()
       .then((snapshot) => {
         const circles: firebase.firestore.DocumentData[] = []
-        snapshot.forEach((circle) => {
+        snapshot.forEach(async (circle) => {
           circles.push({
             id: circle.id,
             ...circle.data(),
@@ -76,10 +76,15 @@ export const actions = {
   },
   fetchCircle({ commit }, circleId: string) {
     return db.collection("circles").doc(circleId).get()
-      .then((snapshot) => {
+      .then(async (snapshot) => {
+        const kiuns = await snapshot.ref.collection("kiuns").orderBy("createdAt", "desc").get()
         commit("setCircle", {
           id: snapshot.id,
           ...snapshot.data(),
+          kiuns: kiuns.docs.map(doc => { 
+            const kiun = doc.data()
+            return { user: kiun.user, datetime: kiun.datetime.toDate(), createdAt: kiun.createdAt.toDate() }
+          })
         })
       })
   },
@@ -99,7 +104,8 @@ export const actions = {
         commit('unsubscribeCircle', circleId)
       })
   },
-  notifyToCircle({}, { circleId }: { circleId: string }) {
-    return functions.httpsCallable('notifyToCircle')({ circleId: circleId })
+  notifyToCircle({}, { circleId, datetime }: { circleId: string, datetime: string }) {
+    const kiunDatetime = datetime ? datetime : new Date().toISOString()
+    return functions.httpsCallable('notifyToCircle')({ circleId, datetime: kiunDatetime })
   },
 }
