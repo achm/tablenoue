@@ -6,6 +6,9 @@ module.exports = (req, res, next) => {
     if (idToken) {
       addDecodedIdTokenToRequest(idToken, req).then(() => {
         next()
+      }).catch(err => {
+        console.log(err)
+        next()
       })
     } else {
       next()
